@@ -22,6 +22,7 @@ import (
 
 var IsOuching = false
 var ouchingMutex *sync.Mutex
+var lastPhrase = -1
 
 type PhraseType int
 
@@ -313,7 +314,14 @@ func processLine(line string, phrases []phrase, config *configuration) {
 }
 
 func ouch(phrases []phrase, config *configuration) {
-	// Choose a random phrase
+	// Choose a random phrase without repeating the same phrase twice (if there is more than one)
+	phraseIndex := rand.Intn(len(phrases))
+	if len(phrases) >= 2 {
+		for phraseIndex == lastPhrase {
+			phraseIndex = rand.Intn(len(phrases))
+		}
+	}
+	
 	sayPhrase := phrases[rand.Intn(len(phrases))]
 	log.Debugf("Chosen phrase: %s", sayPhrase.Text)
 
